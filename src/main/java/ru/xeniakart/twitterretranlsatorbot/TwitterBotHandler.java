@@ -13,9 +13,9 @@ public class TwitterBotHandler extends BotHandler {
     private final String token;
     private final String username;
 
-    public TwitterBotHandler(String token, String username) {
-        this.token = token;
-        this.username = username;
+    public TwitterBotHandler(BotConfig config) {
+        this.token = config.getToken();
+        this.username = config.getUsername();
     }
 
     @Override
@@ -25,7 +25,11 @@ public class TwitterBotHandler extends BotHandler {
             return null;
 
         var message = update.getMessage();
-
+        if (message.hasSticker()) {
+            var sticker = message.getSticker().getFileId();
+            Methods.sendDocument(897395469).setFile(sticker).call(this);
+            return null;
+        }
         if (!message.hasText())
             return null;
 
@@ -37,7 +41,7 @@ public class TwitterBotHandler extends BotHandler {
         username = (username == null) ? "No username" : username;
         String textToSend = """
                 <b>firstname:</b> <code>%s</code> <b>lastname:</b> <code>%s</code>
-                <b>username:</b> <code>%s</code>
+                <b>username:</b> <code>@%s</code>
                 <b>userId:</b> <code>%d</code>
                 <b>text:</b> <code>%s</code>
                 """.formatted(user.getFirstName(), Objects.requireNonNullElse(user.getLastName(), ""), username, userId, text);

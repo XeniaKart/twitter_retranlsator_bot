@@ -1,0 +1,3 @@
+token: env(token)
+username: env(username)
+database: mongoodb
