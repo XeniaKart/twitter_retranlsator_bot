@@ -6,8 +6,11 @@ import com.annimon.tgbotsmodule.Runner;
 import com.annimon.tgbotsmodule.beans.Config;
 import com.annimon.tgbotsmodule.services.YamlConfigLoaderService;
 import org.jetbrains.annotations.NotNull;
+import ru.xeniakart.twitterretranlsatorbot.command.CommandRegistry;
+import ru.xeniakart.twitterretranlsatorbot.command.TweetCommand;
 
 import java.util.List;
+import java.util.Set;
 
 public class TwitterBot implements BotModule {
 
@@ -21,6 +24,6 @@ public class TwitterBot implements BotModule {
         var configLoader = new YamlConfigLoaderService();
         var configFile = configLoader.configFile("BotConfig", config.getProfile());
         var botConfig = configLoader.loadFile(configFile, BotConfig.class);
-        return new TwitterBotHandler(botConfig);
+        return new TwitterBotHandler(botConfig, new CommandRegistry(Set.of(new TweetCommand())));
     }
 }

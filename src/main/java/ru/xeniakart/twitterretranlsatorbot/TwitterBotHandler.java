@@ -2,9 +2,11 @@ package ru.xeniakart.twitterretranlsatorbot;
 
 import com.annimon.tgbotsmodule.BotHandler;
 import com.annimon.tgbotsmodule.api.methods.Methods;
+import com.annimon.tgbotsmodule.commands.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.xeniakart.twitterretranlsatorbot.command.CommandRegistry;
 
 import java.util.Objects;
 
@@ -12,10 +14,13 @@ public class TwitterBotHandler extends BotHandler {
 
     private final String token;
     private final String username;
+    private final CommandRegistry commandRegistry;
 
-    public TwitterBotHandler(BotConfig config) {
+    public TwitterBotHandler(BotConfig config, CommandRegistry commandRegistry) {
         this.token = config.getToken();
         this.username = config.getUsername();
+
+        this.commandRegistry = commandRegistry;
     }
 
     @Override
@@ -25,27 +30,29 @@ public class TwitterBotHandler extends BotHandler {
             return null;
 
         var message = update.getMessage();
+
+        if (message.getDate() + 120 < System.currentTimeMillis() / 1000) return null;
+
         if (message.hasSticker()) {
             var sticker = message.getSticker().getFileId();
             Methods.sendDocument(897395469).setFile(sticker).call(this);
             return null;
         }
+
+        if (!message.isCommand())
+            return null;
+
         if (!message.hasText())
             return null;
 
-        var text = message.getText();
-        var chatId = message.getChatId();
-        var user = message.getFrom();
-        var userId = user.getId();
-        var username = user.getUserName();
-        username = (username == null) ? "No username" : username;
-        String textToSend = """
-                <b>firstname:</b> <code>%s</code> <b>lastname:</b> <code>%s</code>
-                <b>username:</b> <code>@%s</code>
-                <b>userId:</b> <code>%d</code>
-                <b>text:</b> <code>%s</code>
-                """.formatted(user.getFirstName(), Objects.requireNonNullElse(user.getLastName(), ""), username, userId, text);
-        Methods.sendMessage(897395469, textToSend).enableHtml().call(this);
+        var textArgs = message.getText().split("\\s+", 2);
+        var command = textArgs[0];
+
+        var commandHandler = commandRegistry.getCommand(command);
+
+        if (commandHandler == null) return null;
+        commandHandler.accept(new MessageContext(this, update, textArgs.length < 2 ? "" : textArgs[1]));
+
         return null;
     }
 
