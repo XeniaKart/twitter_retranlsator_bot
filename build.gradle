@@ -1,13 +1,11 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'ru.xeniakart'
 version '0.1'
 sourceCompatibility = 16
-mainClassName = 'ru.xeniakart.twitterretranlsatorbot.TwitterBot'
 
 repositories {
     mavenCentral()
@@ -17,8 +15,14 @@ dependencies {
     implementation 'com.annimon:tgbots-module:0.15'
     implementation 'org.mongodb:mongodb-driver-sync:4.2.3'
     implementation 'com.google.inject:guice:5.0.1'
+    implementation 'io.github.redouane59.twitter:twittered:2.4'
 }
 
-shadowJar {
-    mergeServiceFiles()
-}
+/*jar {
+    manifest {
+        attributes "Main-Class": "ru.xeniakart.twitterretranlsatorbot.TwitterBot"
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}*/

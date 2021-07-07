@@ -1,3 +1,7 @@
 token: env(token)
 username: env(username)
 database: mongoodb
+apiKey: env(apiKey)
+apiSecretKey: env(apiSecretKey)
+accessToken: env(accessToken)
+accessTokenSecret: env(accessTokenSecret)
